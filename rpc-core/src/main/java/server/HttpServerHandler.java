@@ -1,5 +1,6 @@
 package server;
 
+import com.wengxiaoxiong.model.User;
 import io.vertx.core.Handler;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpServerRequest;
@@ -12,6 +13,7 @@ import serializer.Serializer;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 
 public class HttpServerHandler implements Handler<HttpServerRequest> {
 
@@ -56,7 +58,8 @@ public class HttpServerHandler implements Handler<HttpServerRequest> {
             // 调用
             try {
                 Class<?> implClass = LocalRegistry.get(rpcRequest.getServiceName());
-                Method method = implClass.getMethod(rpcRequest.getMethodName());
+                Method method = implClass.getMethod(rpcRequest.getMethodName(), rpcRequest.getParameterTypes());
+
                 Object result = method.invoke(implClass.newInstance(), rpcRequest.getArgs());
                 rpcResponse.setData(result);
                 rpcResponse.setDataType(method.getReturnType());
