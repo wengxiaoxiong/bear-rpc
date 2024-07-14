@@ -4,6 +4,7 @@ import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import model.RpcRequest;
 import model.RpcResponse;
+import rpc.RpcApplication;
 import serializer.JdkSerializer;
 import serializer.Serializer;
 
@@ -30,7 +31,7 @@ public class ProxyService implements InvocationHandler {
 
         try{
             byte[] result;
-            HttpResponse httpResponse = HttpRequest.post("http://localhost:8080").body(serialize).execute();
+            HttpResponse httpResponse = HttpRequest.post(RpcApplication.getRpcConfig().getServerHost()).body(serialize).execute();
             result = httpResponse.bodyBytes();
             RpcResponse rpcResponse = serializer.deserialize(result, RpcResponse.class);
             return rpcResponse.getData();
