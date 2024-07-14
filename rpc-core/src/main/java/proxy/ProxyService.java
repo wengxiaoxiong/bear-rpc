@@ -1,37 +1,46 @@
-package com.wengxiaoxiong;
+package proxy;
 
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
-import com.wengxiaoxiong.model.User;
-import com.wengxiaoxiong.service.UserService;
 import model.RpcRequest;
 import model.RpcResponse;
 import serializer.JdkSerializer;
 import serializer.Serializer;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
 
-@Deprecated
-public class UserServiceProxy implements UserService {
+public class ProxyService implements InvocationHandler {
+
     @Override
-    public User getUser(User u) {
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+
+
         Serializer serializer = new JdkSerializer();
-        // 构造RPC请求
-        RpcRequest rpcRequest = RpcRequest.builder()
-                .serviceName(UserService.class.getName())
-                .methodName("getUser")
-                .parameterTypes(new Class[]{User.class})
-                .args(new Object[]{u})
+
+        RpcRequest build = RpcRequest
+                .builder()
+                .serviceName(method.getDeclaringClass().getName())
+                .methodName(method.getName())
+                .parameterTypes(method.getParameterTypes())
+                .args(args)
                 .build();
+
+        byte[] serialize = serializer.serialize(build);
+
         try{
-            byte[] serialize = serializer.serialize(rpcRequest);
             byte[] result;
             HttpResponse httpResponse = HttpRequest.post("http://localhost:8080").body(serialize).execute();
             result = httpResponse.bodyBytes();
             RpcResponse rpcResponse = serializer.deserialize(result, RpcResponse.class);
-            return (User) rpcResponse.getData();
+            return rpcResponse.getData();
         }catch (Exception e ){
             e.printStackTrace();
         }
+
         return null;
+
+
+
     }
 }
