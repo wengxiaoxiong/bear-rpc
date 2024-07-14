@@ -1,3 +1,5 @@
+package server;
+
 import io.vertx.core.Vertx;
 
 public class VertxHttpServer implements HttpServer{
@@ -19,5 +21,7 @@ public class VertxHttpServer implements HttpServer{
                 System.err.println(httpServerAsyncResult.cause());
             }
         });
+
+
     }
 }
