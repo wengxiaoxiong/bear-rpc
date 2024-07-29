@@ -11,6 +11,7 @@ import serializer.Serializer;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.util.ServiceLoader;
 
 public class ProxyService implements InvocationHandler {
 
@@ -18,7 +19,13 @@ public class ProxyService implements InvocationHandler {
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 
 
-        Serializer serializer = new JdkSerializer();
+//        Serializer serializer = new JdkSerializer();
+
+        Serializer serializer = null;
+        ServiceLoader<Serializer> serviceLoader = ServiceLoader.load(Serializer.class);
+        for(Serializer service: serviceLoader){
+            serializer =service;
+        }
 
         RpcRequest build = RpcRequest
                 .builder()
