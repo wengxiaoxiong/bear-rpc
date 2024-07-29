@@ -2,6 +2,7 @@ package proxy;
 
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
+import config.RpcConfig;
 import model.RpcRequest;
 import model.RpcResponse;
 import rpc.RpcApplication;
@@ -30,8 +31,10 @@ public class ProxyService implements InvocationHandler {
         byte[] serialize = serializer.serialize(build);
 
         try{
+
+            RpcConfig rpcConfig = RpcApplication.getRpcConfig();
             byte[] result;
-            HttpResponse httpResponse = HttpRequest.post(RpcApplication.getRpcConfig().getServerHost()).body(serialize).execute();
+            HttpResponse httpResponse = HttpRequest.post("http://"+rpcConfig.getServerHost()+":"+rpcConfig.getServerPort()+"/").body(serialize).execute();
             result = httpResponse.bodyBytes();
             RpcResponse rpcResponse = serializer.deserialize(result, RpcResponse.class);
             return rpcResponse.getData();
